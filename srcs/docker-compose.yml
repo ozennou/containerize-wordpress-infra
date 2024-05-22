@@ -1,0 +1,135 @@
+networks:
+  services_net:
+    name: services_net
+    driver: bridge
+    driver_opts:
+      encrypted: 'yes'
+
+volumes:
+  db_volume:
+    name: db_volume
+    driver_opts:
+      type: bind
+      o: bind
+      device: /home/mozennou/data/mariadb
+  wp_volume:
+    name: wp_volume
+    driver_opts:
+      type: bind
+      o: bind
+      device: /home/mozennou/data/wp
+
+services:
+  mariadb:
+    build: ./requirements/mariadb/
+    image: "mariadb:inception"
+    container_name: mariadb
+    networks:
+      - services_net
+    volumes:
+      - "db_volume:/var/lib/mysql"
+    environment:
+      - DB_NAME=$DB_NAME
+      - DB_USER=$DB_USER
+      - DB_USER_PASSWD=$DB_USER_PASSWD
+    restart: unless-stopped
+  wordpress:
+    build: ./requirements/wordpress/
+    image: "wordpress:inception"
+    container_name: wordpress
+    networks:
+      - services_net
+    volumes:
+      - "wp_volume:/var/www"
+    environment:
+      - DB_NAME=$DB_NAME
+      - DB_USER=$DB_USER
+      - DB_USER_PASSWD=$DB_USER_PASSWD
+      - DOMAINNAME=$DOMAINNAME
+      - WP_ADMIN=$WP_ADMIN
+      - WP_ADMIN_PASSWD=$WP_ADMIN_PASSWD
+      - WP_ADMIN_MAIL=$WP_ADMIN_MAIL
+      - WP_USER=$WP_USER
+      - WP_USER_PASSWD=$WP_USER_PASSWD
+      - WP_USER_MAIL=$WP_USER_MAIL
+      - TITLE=$TITLE
+      - REDIS_PASSWD=$REDIS_PASSWD
+    restart: unless-stopped
+    depends_on: 
+      - mariadb
+      - redis-cache
+  nginx:
+    build: ./requirements/nginx/
+    image: "nginx:inception"
+    container_name: nginx
+    networks:
+      - services_net
+    volumes:
+      - "wp_volume:/var/www"
+    environment:
+      - HOSTNAME=$HOSTNAME
+      - CRT_PATH=$CRT_PATH
+      - R_GUI=$R_GUI
+    restart: unless-stopped
+    depends_on: 
+      - wordpress
+    ports:
+      - "443:443"
+######
+#bonus part
+  ftp-server:
+    build: ./requirements/bonus/ftp-server
+    image: "ftp-server:inception"
+    container_name: ftp-server
+    networks:
+      - services_net
+    ports:
+      - "21:21"
+      - "10000-10100:10000-10100"
+    volumes:
+      - wp_volume:/data
+    environment:
+      - FTP_USER=$FTP_USER
+      - FTP_PASSWD=$FTP_PASSWD
+    restart: unless-stopped
+  static-website:
+    build: ./requirements/bonus/static-website
+    image: "static-website:inception"
+    container_name: static-website
+    networks:
+      - services_net
+    restart: unless-stopped
+  redis-cache:
+    build: ./requirements/bonus/redis-cache
+    image: "redis-cache:inception"
+    container_name: redis-cache
+    networks:
+      - services_net
+    environment:
+      - REDIS_PASSWD=$REDIS_PASSWD
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "$REDIS_PASSWD", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  adminer:
+    build: ./requirements/bonus/adminer
+    image: "adminer:inception"
+    container_name: adminer
+    networks:
+      - services_net
+    restart: unless-stopped
+  portainer:
+    build: ./requirements/bonus/portainer
+    image: "portainer:inception"
+    container_name: portainer
+    networks:
+      - services_net
+    environment:
+      - PORTAINER_PASS=$PORTAINER_PASS
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    restart: unless-stopped
+    ports:
+      - "9443:9443"

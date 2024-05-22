@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inception</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1, h3, h4 {
+    color: #333;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 20px 0;
+}
+
+ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+p {
+    margin-bottom: 20px;
+}
+
+.centered-header {
+    text-align: center;
+    font-size: 40px;
+}
+
+ul {
+    list-style-type: disc; 
+    padding-left: 20px; 
+  }
+
+</style>
+</head>
+<body>
+<div class="container">
+<h1 class="centered-header" >Inception</h1>
+<h3>Overview</h3>
+<p>The project involves creating a comprehensive WordPress infrastructure using Docker containers for multiple services, aiming to achieve microservices architecture for this infrastructure:</p>
+<img src="./Inception-Diagram.png" alt="Architecture" width="1200">
+
+<h3>What I use in this project?</h3>
+<ul>
+<li>Wordpress using wp-cli</li>
+<li>Nginx</li>
+<li>mariadb</li>
+<li>PHP-FPM</li>
+<li>OpenSSL</li>
+<li>Docker and Docker compose</li>
+<li>Redis-cache</li>
+<li>Portainer</li>
+<li>Adminer</li>
+<li>FTP server</li>
+</ul>
+
+<h3>Wordpress:</h3>
+<p> - It's a simple container when I use the wp-cli (command line interface) to download and install the Wordpress core (WordPress content files), and configuring Wordpress to connect and use the database <a href="#MariaDB">MariaDB</a> and install and connect to <a href="#Redis-cache">Redis-cache</a> plugin.</p>
+
+<h3 id="MariaDB">MariaDB</h3>
+<p> - MariaDB is a relational database management system used as a database for WordPress. It is a robust, high-performance, and feature-rich alternative to MySQL. Its open-source nature, compatibility with MySQL, active development, and enterprise-grade features make it a compelling choice for both small and large-scale applications.</p>
+
+<h3 id="Nginx">Nginx</h3>
+<p> - It's the web server that I use to serve the WordPress content files, all using the HTTPS protocol for an encrypted connection with the clients via <a href="#OpenSSL">OpenSSL</a> (TLSv1.2, TLSv1.3). The SSL certificate is configured with Nginx. Additionally, I use a reverse proxy to connect to Adminer and the static-website services without exposing their ports. This setup helps maintain HTTPS encryption and allows for redirection and connection to Portainer via a specific domain name and port.</p>
+
+<h3>PHP-FPM</h3>
+<p> - PHP-FPM (PHP FastCGI Process Manager) is a CGI (Common Gateway Interface) that I use to handle incoming requests with PHP files in <a href="#Nginx">Nginx</a> locations. It works as a separate process manager for PHP, allowing better resource management, improved performance, and scalability for serving PHP-based web applications.</p>
+
+<h3 id="OpenSSL">OpenSSL</h3>
+<p> - OpenSSL is a widely-used open-source toolkit that provides implementations of SSL and TLS protocols. In my case, I utilized it to generate a self-signed certificate, which I then use in the Nginx server to establish secure connections with clients. This ensures that data exchanged between the server and clients is encrypted and secure, enhancing overall communication security and trust.</p>
+
+<h3>Docker and Docker-compose</h3>
+<p> - The core of this project is to use Docker containers to create the infrastructure in a microservices architecture. In this setup, each service runs independently in its own container. For example, if the Redis cache container exits due to any reason, the website will still be available to clients. Docker manages the dependencies and security rules for secure running of these containers. Docker Compose is used for building and orchestrating all these containers with a single Compose YAML file.</p>
+
+<h3 id="Redis-cache">Redis-cache</h3>
+<p> - Redis is an open-source, in-memory data structure store that can be used as a database, storing data in a key-value format. This makes it a high-speed database, suitable for caching purposes. Caching is a computing technique that involves temporarily storing frequently accessed data or resources in a location that allows faster access.</p>
+
+<h3>Portainer</h3>
+<p> - Portainer is an open-source management platform for Docker containers. It provides a user-friendly interface that allows users to easily manage Docker environments, including managing containers, images, volumes, networks, and more.</p>
+
+<h3>FTP server</h3>
+<p> - FTP (File Transfer Protocol) server is a software application that facilitates the transfer of files between computers over a network. It allows users to upload, download, and manage files and directories on a remote server using FTP client software. In my case, I use it with Wordpress volume.</p>
+</div>
+</body>
+</html>
